@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:github_feed/core/extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webfeed_revised/webfeed_revised.dart';
@@ -152,11 +153,9 @@ class FeedAuthorsWidget extends StatelessWidget {
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           onPressed: () {
-            String? url = author.uri;
+            String? url = author.getAtomUrl();
             if (url == null) return;
-            if (!url.endsWith('.atom')) {
-              url = '$url.atom';
-            }
+
             Navigator.push(
               context,
               MaterialPageRoute(
