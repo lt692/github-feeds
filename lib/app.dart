@@ -23,8 +23,8 @@ class App extends StatelessWidget {
         RepositoryProvider<Dio>(
           create: (_) => Dio(
             BaseOptions(
-              connectTimeout: Duration(seconds: 10),
-              receiveTimeout: Duration(seconds: 10),
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 10),
             ),
           ),
         ),
