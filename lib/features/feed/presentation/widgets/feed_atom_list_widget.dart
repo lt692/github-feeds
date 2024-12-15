@@ -1,10 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webfeed_revised/webfeed_revised.dart';
 
+import '../../domain/usecases/get_atom_feed_use_case.dart';
+import '../../domain/usecases/get_available_feeds_use_case.dart';
+import '../bloc/feed_bloc.dart';
 import '../pages/feed_page.dart';
 
 class FeedAtomListWidget extends StatelessWidget {
@@ -25,73 +29,57 @@ class FeedAtomListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ListView.builder(
-          padding: const EdgeInsets.all(8.0),
-          itemCount: feed.items?.length ?? 0,
-          itemBuilder: (context, index) {
-            final item = feed.items![index];
+    return ListView.builder(
+      padding: const EdgeInsets.all(8.0),
+      itemCount: feed.items?.length ?? 0,
+      itemBuilder: (context, index) {
+        final item = feed.items![index];
 
-            return Card(
-              margin:
-                  const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title ?? "-",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    if (item.updated != null)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.calendar_today, size: 16),
-                          const SizedBox(width: 16.0),
-                          FeedItemDate(updated: item.updated),
-                        ],
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title ?? "-",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    if (item.summary?.isNotEmpty ?? false)
-                      Text(
-                        item.summary!,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    const SizedBox(height: 4),
-                    if (item.authors?.isNotEmpty ?? false)
-                      FeedAuthorsWidget(authors: item.authors!),
-                    if (item.links?.isNotEmpty ?? false)
-                      FeedLinksWidget(
-                        links: item.links!,
-                        onLinkPressed: _launchURL,
-                      ),
-                  ],
                 ),
-              ),
-            );
-          },
-        ),
-        Positioned(
-          right: 10,
-          top: 10,
-          child: Text(
-            "Feeds: ${feed.items?.length ?? 0}",
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
+                const SizedBox(height: 8.0),
+                if (item.updated != null)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.calendar_today, size: 16),
+                      const SizedBox(width: 16.0),
+                      FeedItemDate(updated: item.updated),
+                    ],
+                  ),
+                if (item.summary?.isNotEmpty ?? false)
+                  Text(
+                    item.summary!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                const SizedBox(height: 4),
+                if (item.authors?.isNotEmpty ?? false)
+                  FeedAuthorsWidget(authors: item.authors!),
+                if (item.links?.isNotEmpty ?? false)
+                  FeedLinksWidget(
+                    links: item.links!,
+                    onLinkPressed: _launchURL,
+                  ),
+              ],
             ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -174,7 +162,11 @@ class FeedAuthorsWidget extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => FeedPage(
                   url: url,
-                  title: "Feed: ${author.name}",
+                  feedBloc: FeedBloc(
+                    getAvailableFeedsUseCase:
+                        context.read<GetAvailableFeedsUseCase>(),
+                    getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
+                  ),
                 ),
               ),
             );

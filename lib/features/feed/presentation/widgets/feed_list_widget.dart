@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:github_feed/features/feed/presentation/pages/feed_page.dart';
 import '../../domain/entities/feed_source_entity.dart';
+import '../../domain/usecases/get_atom_feed_use_case.dart';
+import '../../domain/usecases/get_available_feeds_use_case.dart';
+import '../bloc/feed_bloc.dart';
 import 'parameter_dialog.dart';
 
 class FeedListWidget extends StatefulWidget {
@@ -29,7 +33,11 @@ class _FeedListWidgetState extends State<FeedListWidget> {
         MaterialPageRoute(
           builder: (context) => FeedPage(
             url: feed.urlTemplate,
-            title: feed.name,
+            feedBloc: FeedBloc(
+              getAvailableFeedsUseCase:
+                  context.read<GetAvailableFeedsUseCase>(),
+              getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
+            ),
           ),
         ),
       );
@@ -55,7 +63,10 @@ class _FeedListWidgetState extends State<FeedListWidget> {
       MaterialPageRoute(
         builder: (context) => FeedPage(
           url: finalUrl,
-          title: parameters.entries.first.value,
+          feedBloc: FeedBloc(
+            getAvailableFeedsUseCase: context.read<GetAvailableFeedsUseCase>(),
+            getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
+          ),
         ),
       ),
     );

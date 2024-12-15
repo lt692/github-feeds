@@ -10,6 +10,7 @@ import 'features/feed/data/repositories/feed_repository_impl.dart';
 import 'features/feed/domain/repositories/feed_repository.dart';
 import 'features/feed/domain/usecases/get_available_feeds_use_case.dart';
 import 'features/feed/domain/usecases/get_atom_feed_use_case.dart';
+import 'features/feed/presentation/bloc/feed_bloc.dart';
 import 'features/feed/presentation/pages/feed_page.dart';
 
 class App extends StatelessWidget {
@@ -20,7 +21,12 @@ class App extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<Dio>(
-          create: (_) => Dio(),
+          create: (_) => Dio(
+            BaseOptions(
+              connectTimeout: Duration(seconds: 10),
+              receiveTimeout: Duration(seconds: 10),
+            ),
+          ),
         ),
         RepositoryProvider<AvailableFeedsRemoteDataSource>(
           create: (context) => FeedRemoteDataSourceImpl(context.read<Dio>()),
@@ -56,8 +62,13 @@ class App extends StatelessWidget {
           ),
         ),
       ],
-      child: const MaterialApp(
-        home: FeedPage(),
+      child: MaterialApp(
+        home: FeedPage(
+          feedBloc: FeedBloc(
+            getAvailableFeedsUseCase: context.read<GetAvailableFeedsUseCase>(),
+            getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
+          ),
+        ),
       ),
     );
   }

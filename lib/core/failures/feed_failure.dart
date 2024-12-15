@@ -1,4 +1,4 @@
-import 'package:github_feed/core/failures/failure.dart';
+import 'failure.dart';
 
 class FeedFailure extends Failure {
   FeedFailure(super.message);

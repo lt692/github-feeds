@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:github_feed/features/feed/domain/usecases/get_atom_feed_use_case.dart';
 
-import '../../domain/usecases/get_available_feeds_use_case.dart';
-import '../feed/feed_bloc.dart';
+import '../../../../core/utils/title_formatter.dart';
+import '../bloc/feed_bloc.dart';
 import '../widgets/feed_atom_list_widget.dart';
 import '../widgets/feed_error_widget.dart';
 import '../widgets/feed_initial_widget.dart';
@@ -14,25 +13,25 @@ class FeedPage extends StatelessWidget {
   const FeedPage({
     super.key,
     this.url,
-    this.title,
+    required this.feedBloc,
   });
 
   final String? url;
-  final String? title;
+
+  final FeedBloc feedBloc;
 
   @override
   Widget build(BuildContext context) {
     final feedEvent =
         url != null ? FeedEvent.startedAtom(url!) : const FeedEvent.started();
 
+    String title = TitleFormatter.format(url);
+
     return BlocProvider<FeedBloc>(
-      create: (context) => FeedBloc(
-        getAvailableFeedsUseCase: context.read<GetAvailableFeedsUseCase>(),
-        getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
-      )..add(feedEvent),
+      create: (context) => feedBloc..add(feedEvent),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(title ?? 'GitHub Feeds'),
+          title: Text(title),
           actions: [
             Builder(
               builder: (context) {

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:github_feed/core/extensions.dart';
-import 'package:github_feed/core/failures/network_failure.dart';
 
+import '../../../../core/failures/network_failure.dart';
+import '../../../../core/extensions.dart';
 import '../models/feed_source_model.dart';
 
 abstract class AvailableFeedsRemoteDataSource {
@@ -16,37 +16,32 @@ class FeedRemoteDataSourceImpl implements AvailableFeedsRemoteDataSource {
 
   @override
   Future<List<FeedSourceModel>> fetch() async {
-    try {
-      final response = await client.get<Map<String, dynamic>>(
-        'https://api.github.com/feeds',
-      );
+    final response = await client.get<Map<String, dynamic>>(
+      'https://api.github.com/feeds',
+    );
 
-      final data = response.data;
+    final data = response.data;
 
-      final Map<String, dynamic>? links = data?['_links'];
+    final Map<String, dynamic>? links = data?['_links'];
 
-      if (links == null) {
-        throw NetworkFailure("No '_links' field in the response");
-      }
-
-      // Map the links to FeedSourceModel objects
-      final List<FeedSourceModel> feedSources = [];
-
-      links.forEach((key, value) {
-        if (value is Map<String, dynamic> && value['href'] is String) {
-          final href = value['href'];
-          if (href.startsWith('https://')) {
-            feedSources.add(FeedSourceModel(
-              name: key.replaceAll('_', ' ').capitalizeFirst(),
-              urlTemplate: href,
-            ));
-          }
-        }
-      });
-
-      return feedSources;
-    } catch (e) {
-      throw NetworkFailure("Check internet connection");
+    if (links == null) {
+      throw NetworkFailure("No '_links' field in the response");
     }
+
+    final List<FeedSourceModel> feedSources = [];
+
+    links.forEach((key, value) {
+      if (value is Map<String, dynamic> && value['href'] is String) {
+        final href = value['href'] as String;
+        if (href.startsWith('https://')) {
+          feedSources.add(FeedSourceModel(
+            name: key.replaceAll('_', ' ').capitalizeFirst(),
+            urlTemplate: href,
+          ));
+        }
+      }
+    });
+
+    return feedSources;
   }
 }

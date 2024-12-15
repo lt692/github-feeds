@@ -1,10 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:github_feed/core/failures/network_failure.dart';
 
-import '../../../../core/failures/feed_failure.dart';
+import '../../../../core/failures/network_failure.dart';
 
 abstract class AtomFeedRemoteDataSource {
-  Future<String?> fetch(String feedUrl);
+  Future<String> fetch(String feedUrl);
 }
 
 class AtomFeedRemoteDataSourceImpl implements AtomFeedRemoteDataSource {
@@ -13,24 +12,16 @@ class AtomFeedRemoteDataSourceImpl implements AtomFeedRemoteDataSource {
   const AtomFeedRemoteDataSourceImpl(this.client);
 
   @override
-  Future<String?> fetch(String feedUrl) async {
-    try {
-      final response = await client.get<String>(
-        feedUrl,
-        options: Options(responseType: ResponseType.plain),
-      );
+  Future<String> fetch(String feedUrl) async {
+    final response = await client.get<String>(
+      feedUrl,
+      options: Options(responseType: ResponseType.plain),
+    );
 
-      return response.data;
-    } on DioException catch (dioError) {
-      final statusCode = dioError.response?.statusCode;
-      switch (statusCode) {
-        case 404:
-          throw FeedFailure('User is private');
-        default:
-          throw NetworkFailure('Check internet connection');
-      }
-    } catch (e) {
-      throw NetworkFailure('Unexpected error: $e');
+    if (response.data == null) {
+      throw NetworkFailure("Received empty response from server");
     }
+
+    return response.data!;
   }
 }
