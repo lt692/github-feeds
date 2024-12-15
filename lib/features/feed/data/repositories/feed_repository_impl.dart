@@ -65,7 +65,7 @@ class FeedRepositoryImpl implements FeedRepository {
       final statusCode = dioError.response?.statusCode;
       switch (statusCode) {
         case 404:
-          return Left(FeedFailure('User is private'));
+          return Left(FeedFailure('Nothing to see'));
         default:
           try {
             final cachedFeed = await atomFeedLocalDataSource.get(feedUrl);

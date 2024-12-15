@@ -62,14 +62,17 @@ class App extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp(
-        home: FeedPage(
-          feedBloc: FeedBloc(
-            getAvailableFeedsUseCase: context.read<GetAvailableFeedsUseCase>(),
-            getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
+      child: Builder(builder: (context) {
+        return MaterialApp(
+          home: FeedPage(
+            feedBloc: FeedBloc(
+              getAvailableFeedsUseCase:
+                  context.read<GetAvailableFeedsUseCase>(),
+              getAtomFeedUseCase: context.read<GetAtomFeedUseCase>(),
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }
